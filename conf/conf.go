@@ -26,7 +26,7 @@ var WebConf *SWebConf
 
 func InitConf() {
 	// load from yaml
-	env.LoadConf("resource.yaml", "mount", &WebConf)
+	env.LoadConf("default.yaml", "mount", &WebConf)
 }
 
 func (s *SWebConf) GetZlogConf() zlog.LogConfig {
