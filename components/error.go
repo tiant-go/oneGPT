@@ -1,15 +1,33 @@
 package components
 
-import (
-	"github.com/tiant-go/golib/pkg/errors"
-)
+import "strings"
 
-var OutErrMsg = map[int]string{}
+type OpenAIError struct {
+	Message string `json:"message"`
+	Type    string `json:"type"`
+	Param   string `json:"param"`
+	Code    any    `json:"code"`
+}
 
-var OutErrMap = map[int]int{}
+type OpenAIErrorWithCode struct {
+	Error      OpenAIError `json:"error"`
+	StatusCode int         `json:"status_code"`
+	LocalError bool
+}
 
-// 用户未登录
-var ErrorTokenExpire = errors.Error{
-	Code:    401,
-	Message: "用户session失效，请重新登录",
+// OpenAIErrorWrapper wraps an error into an OpenAIErrorWithStatusCode
+func OpenAIErrorWrapper(text string, code string, statusCode int) *OpenAIErrorWithCode {
+	lowerText := strings.ToLower(text)
+	if strings.Contains(lowerText, "post") || strings.Contains(lowerText, "dial") || strings.Contains(lowerText, "http") {
+		text = "请求上游失败"
+	}
+	openAIError := OpenAIError{
+		Message: text,
+		Type:    "http_api_error",
+		Code:    code,
+	}
+	return &OpenAIErrorWithCode{
+		Error:      openAIError,
+		StatusCode: statusCode,
+	}
 }
